@@ -1,0 +1,7 @@
+gesdinet_jwt_refresh_token:
+    refresh_token_class: App\Entity\RefreshToken
+    ttl: 2629800 # Durée de vie du refresh token en secondes
+    ttl_update: true # Mise à jour de la date d'expiration du refresh token à chaque utilisation
+    user_provider: app_user_provider
+    user_identity_field: 'login'
+    refresh_token_entity: App\Entity\RefreshToken
