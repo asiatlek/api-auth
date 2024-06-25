@@ -153,4 +153,10 @@ class AuthController extends AbstractController
 
         return new JsonResponse($userData);
     }
+
+    #[Route('/api/refresh-token/{refreshToken}', name: 'app_refresh', methods: ['POST'])]
+    public function refresh($refreshToken)
+    {
+        return $this->json($refreshToken);
+    }
 }

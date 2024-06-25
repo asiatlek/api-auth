@@ -23,7 +23,9 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Security\JWTAuthenticator:
-        arguments: ['@lexik_jwt_authentication.security.jwt_token_authenticator']
+    App\EventListener\AuthenticationSuccessListener:
+        arguments:
+            $refreshTokenManager: '@gesdinet.jwtrefreshtoken.refresh_token_manager'
+            $requestStack: '@request_stack'
         tags:
-            - { name: 'security.authenticator' }
+            - { name: 'kernel.event_listener', event: 'lexik_jwt_authentication.on_authentication_success', method: 'onAuthenticationSuccessResponse' }

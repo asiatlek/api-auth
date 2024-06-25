@@ -27,6 +27,7 @@ security:
 
 
     access_control:
+        - { path: ^/api/refresh-token/, roles: PUBLIC_ACCESS }
         - { path: ^/api/validate/, roles: PUBLIC_ACCESS }
         - { path: ^/api/refresh/token, roles: PUBLIC_ACCESS }
         - { path: ^/api/account/, roles: IS_AUTHENTICATED_FULLY}
