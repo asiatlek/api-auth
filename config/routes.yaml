@@ -11,6 +11,6 @@ api_refresh_token:
     path: /api/refresh/token
 
 api_token_refresh:
-    path: /api/token/refresh/{refreshToken}
+    path: /api/token/refresh/{refreshToken}/token
     controller: App\Controller\RefreshTokenController::refresh
-    methods: [GET]
+    methods: [POST]

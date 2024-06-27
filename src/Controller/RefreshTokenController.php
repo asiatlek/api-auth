@@ -32,7 +32,7 @@ class RefreshTokenController extends AbstractController
     }
 
     /**
-     * @Route("/api/token/refresh/{refreshToken}", name="api_token_refresh", methods={"GET"})
+     * @Route("/api/token/refresh/{refreshToken}/token", name="api_token_refresh", methods={"POST"})
      */
     public function refresh(string $refreshToken): JsonResponse
     {
