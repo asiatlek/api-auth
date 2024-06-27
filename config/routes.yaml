@@ -9,3 +9,8 @@ api_login_check:
 
 api_refresh_token:
     path: /api/refresh/token
+
+api_token_refresh:
+    path: /api/token/refresh/{refreshToken}
+    controller: App\Controller\RefreshTokenController::refresh
+    methods: [GET]
