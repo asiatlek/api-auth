@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class ValidateTokenController extends AbstractController
 {
-    #[Route('/api/validate/{token}', name: 'app_validate_token', methods: ['GET'])]
+    #[Route('/api/validate/{accessToken}', name: 'app_validate_token', methods: ['GET'])]
     public function validateToken(
         string $token,
         JWTEncoderInterface $jwtEncoder

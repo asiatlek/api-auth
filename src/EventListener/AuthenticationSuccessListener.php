@@ -1,6 +1,5 @@
 <?php
 
-// src/EventListener/AuthenticationSuccessListener.php
 namespace App\EventListener;
 
 use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
@@ -12,13 +11,11 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 class AuthenticationSuccessListener
 {
     private $refreshTokenManager;
-    private $requestStack;
     private $jwtEncoder;
 
-    public function __construct(RefreshTokenManagerInterface $refreshTokenManager, RequestStack $requestStack, JWTEncoderInterface $jwtEncoder)
+    public function __construct(RefreshTokenManagerInterface $refreshTokenManager, JWTEncoderInterface $jwtEncoder)
     {
         $this->refreshTokenManager = $refreshTokenManager;
-        $this->requestStack = $requestStack;
         $this->jwtEncoder = $jwtEncoder;
     }
 

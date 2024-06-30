@@ -10,24 +10,34 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\User;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
 
-
-class AuthController extends AbstractController
+class AccountManagerController extends AbstractController
 {
-    #[Route('/api/account', name: 'app_account', methods: ['POST'])]
-    public function registerAccount(
+    #[Route('/api/account', name: 'app_account_create', methods: ['POST'])]
+    public function createAccountRequest(
         Request $request, 
         EntityManagerInterface $em,
         ValidatorInterface $validator
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
-        
-        if (!$data || !isset($data['login'], $data['password'])) {
-            return new JsonResponse(['error' => 'Invalid data'], JsonResponse::HTTP_BAD_REQUEST);
-        }
 
+        if (!$data || !isset($data['login'], $data['password'])) {
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: login ou password manquant(s)");
+        }
+        
+        $allowedParams = ['login', 'password', 'roles', 'status'];
+        $unexpectedParams = array_diff(array_keys($data), $allowedParams);
+        
+        if (!empty($unexpectedParams)) {
+            throw new UnprocessableEntityHttpException("Paramètres non autorisés: " . implode(', ', $unexpectedParams));
+        }
+        
         if (!$this->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse(['error' => "Il est nécessaire de disposé d'un compte admin pour créer un compte"], JsonResponse::HTTP_FORBIDDEN);
+            throw new AccessDeniedHttpException("Il est nécessaire de disposer d'un compte admin pour créer un compte");
         }
 
         $user = new User();
@@ -37,18 +47,24 @@ class AuthController extends AbstractController
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTimeImmutable());
 
-        if (isset($data['status']) && $data['status'] === "closed") {
-            $user->setStatus("closed");
+        if (isset($data['roles'])) {
+            if (!in_array($data['roles'], [['ROLE_ADMIN'], ['ROLE_USER']], true)) {
+                throw new UnprocessableEntityHttpException("Statut invalide: le statut doit être 'open' ou 'closed'");
+            }
+            $user->setStatus($data['roles']);
+        }
+
+        if (isset($data['status'])) {
+            if (!in_array($data['status'], ['open', 'closed'], true)) {
+                throw new UnprocessableEntityHttpException("Statut invalide: le statut doit être 'open' ou 'closed'");
+            }
+            $user->setStatus($data['status']);
         }
 
         $errors = $validator->validate($user);
 
         if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[] = $error->getMessage();
-            }
-            return new JsonResponse(['errors' => $errorMessages], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
         }
 
         $em->persist($user);
@@ -64,18 +80,23 @@ class AuthController extends AbstractController
     }
 
     #[Route('/api/account/{uuid}', name: 'app_account_info', methods: ['GET'])]
-    public function getAccountInfo(
+    public function readAccountRequest(
         string $uuid,
         EntityManagerInterface $em,
         Security $security
     ): JsonResponse {
+        if (!Uuid::isValid($uuid)) {
+            return new JsonResponse([
+                'error' => 'Invalid UUID format.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $user = $em->getRepository(User::class)->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
             return new JsonResponse(['error' => "Aucun utilisateur trouvé avec l'IUID donné"], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        // Vérifiez si l'utilisateur authentifié est le propriétaire du compte ou un administrateur
         $currentUser = $security->getUser();
         if ($currentUser->getUserIdentifier() !== $uuid && !$this->isGranted('ROLE_ADMIN')) {
             return new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le proprietaire du compte"], JsonResponse::HTTP_FORBIDDEN);
@@ -93,44 +114,66 @@ class AuthController extends AbstractController
     }
 
     #[Route('/api/account/{uuid}', name: 'app_account_update', methods: ['PUT'])]
-    public function updateAccount(
+    public function EditAccountRequest(
         string $uuid,
         Request $request,
         EntityManagerInterface $em,
         Security $security,
         ValidatorInterface $validator
     ): JsonResponse {
-        $data = json_decode($request->getContent(), true);
+        if (!Uuid::isValid($uuid)) {
+            return new JsonResponse([
+                'error' => 'Invalid UUID format.'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $user = $em->getRepository(User::class)->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
-            return new JsonResponse(['error' => "Aucun utilisateur trouvé avec l'UUID donné"], JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonResponse(['error' => "Aucun utilisateur trouvé avec l'UUID donné"], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        // Vérifiez si l'utilisateur authentifié est le propriétaire du compte ou un administrateur
         $currentUser = $security->getUser();
         if ($currentUser->getUserIdentifier() !== $uuid && !$this->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le propriétaire du compte"], JsonResponse::HTTP_FORBIDDEN);
+            throw new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le propriétaire du compte"], JsonResponse::HTTP_FORBIDDEN);
         }
 
-        // Mise à jour des informations de l'utilisateur
-        if (isset($data['login'])) {
-            $user->setLogin($data['login']);
-        }
-        if (isset($data['password'])) {
-            $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
-        }
-        if ($this->isGranted('ROLE_ADMIN') && isset($data['roles'])) {
-            if ($data['roles'] === "ROLE_ADMIN") {
-                $user->setRoles(['ROLE_ADMIN']);
-            } else {
-                $user->setRoles(['ROLE_USER']);
+        $data = json_decode($request->getContent(), true);
+
+        $requiredParams = ['login', 'password', 'roles', 'status'];
+        foreach ($requiredParams as $param) {
+            if (!isset($data[$param])) {
+                throw new UnprocessableEntityHttpException("Paramètre obligatoire manquant: $param");
             }
         }
+    
+        $allowedParams = $requiredParams;
+        $unexpectedParams = array_diff(array_keys($data), $allowedParams);
+    
+        if (!empty($unexpectedParams)) {
+            throw new UnprocessableEntityHttpException("Paramètres non autorisés: " . implode(', ', $unexpectedParams));
+        }
 
+        $validRoles = [['ROLE_ADMIN'], ['ROLE_USER']];
+        if (!in_array($data['roles'], $validRoles)) {
+            throw new UnprocessableEntityHttpException("Rôle non autorisé. Les rôles autorisés sont: " . implode(', ', $validRoles));
+        }
+    
+        $validStatuses = ['open', 'closed'];
+        if (!in_array($data['status'], $validStatuses)) {
+            throw new UnprocessableEntityHttpException("Statut non autorisé. Les statuts autorisés sont: " . implode(', ', $validStatuses));
+        }
+
+        $user->setLogin($data['login']);
+        $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+        
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $user->setRoles([$data['roles']]);
+        }
+
+        $user->setStatus($data['status']);
         $user->setUpdatedAt(new \DateTimeImmutable());
 
-        // Validation des données
         $errors = $validator->validate($user);
         if (count($errors) > 0) {
             $errorMessages = [];
@@ -147,16 +190,11 @@ class AuthController extends AbstractController
             'uid' => $user->getUuid(),
             'login' => $user->getLogin(),
             'roles' => $user->getRoles(),
+            'status' => $user->getStatus(),
             'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
             'updated_at' => $user->getUpdatedAt()->format('Y-m-d H:i:s')
         ];
 
         return new JsonResponse($userData);
     }
-
-    #[Route('/api/refresh-token/{refreshToken}', name: 'app_refresh', methods: ['POST'])]
-    public function refresh($refreshToken)
-    {
-        return $this->json($refreshToken);
-    }
-}
+}   
