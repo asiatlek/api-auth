@@ -26,7 +26,6 @@ services:
     App\EventListener\AuthenticationSuccessListener:
         arguments:
             $refreshTokenManager: '@gesdinet.jwtrefreshtoken.refresh_token_manager'
-            $requestStack: '@request_stack'
         tags:
             - { name: 'kernel.event_listener', event: 'lexik_jwt_authentication.on_authentication_success', method: 'onAuthenticationSuccessResponse' }
 

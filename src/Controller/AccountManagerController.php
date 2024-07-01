@@ -43,20 +43,20 @@ class AccountManagerController extends AbstractController
         $user = new User();
         $user->setLogin($data['login']);
         $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
-        $user->setUuid(uniqid());
+        $user->setUuid(Uuid::uuid4());
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTimeImmutable());
 
         if (isset($data['roles'])) {
             if (!in_array($data['roles'], [['ROLE_ADMIN'], ['ROLE_USER']], true)) {
-                throw new UnprocessableEntityHttpException("Statut invalide: le statut doit être 'open' ou 'closed'");
+                throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
             }
-            $user->setStatus($data['roles']);
+            $user->setStatus($data['status']);
         }
 
         if (isset($data['status'])) {
             if (!in_array($data['status'], ['open', 'closed'], true)) {
-                throw new UnprocessableEntityHttpException("Statut invalide: le statut doit être 'open' ou 'closed'");
+                throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
             }
             $user->setStatus($data['status']);
         }
@@ -71,7 +71,7 @@ class AccountManagerController extends AbstractController
         $em->flush();
 
         return new JsonResponse([
-            'uid' => $user->getUserIdentifier(),
+            'uid' => $user->getUuid(),
             'login' => $user->getLogin(),
             'roles' => $user->getRoles(),
             'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
@@ -90,7 +90,6 @@ class AccountManagerController extends AbstractController
                 'error' => 'Invalid UUID format.'
             ], Response::HTTP_BAD_REQUEST);
         }
-
         $user = $em->getRepository(User::class)->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
@@ -98,7 +97,7 @@ class AccountManagerController extends AbstractController
         }
 
         $currentUser = $security->getUser();
-        if ($currentUser->getUserIdentifier() !== $uuid && !$this->isGranted('ROLE_ADMIN')) {
+        if ($currentUser->getUserIdentifier() !== $user->getLogin() && !$this->isGranted('ROLE_ADMIN')) {
             return new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le proprietaire du compte"], JsonResponse::HTTP_FORBIDDEN);
         }
 
@@ -134,7 +133,7 @@ class AccountManagerController extends AbstractController
         }
 
         $currentUser = $security->getUser();
-        if ($currentUser->getUserIdentifier() !== $uuid && !$this->isGranted('ROLE_ADMIN')) {
+        if ($currentUser->getUserIdentifier() !== $user->getLogin() && !$this->isGranted('ROLE_ADMIN')) {
             throw new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le propriétaire du compte"], JsonResponse::HTTP_FORBIDDEN);
         }
 
@@ -143,7 +142,7 @@ class AccountManagerController extends AbstractController
         $requiredParams = ['login', 'password', 'roles', 'status'];
         foreach ($requiredParams as $param) {
             if (!isset($data[$param])) {
-                throw new UnprocessableEntityHttpException("Paramètre obligatoire manquant: $param");
+                throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
             }
         }
     
@@ -151,26 +150,27 @@ class AccountManagerController extends AbstractController
         $unexpectedParams = array_diff(array_keys($data), $allowedParams);
     
         if (!empty($unexpectedParams)) {
-            throw new UnprocessableEntityHttpException("Paramètres non autorisés: " . implode(', ', $unexpectedParams));
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
         }
 
         $validRoles = [['ROLE_ADMIN'], ['ROLE_USER']];
         if (!in_array($data['roles'], $validRoles)) {
-            throw new UnprocessableEntityHttpException("Rôle non autorisé. Les rôles autorisés sont: " . implode(', ', $validRoles));
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
         }
     
         $validStatuses = ['open', 'closed'];
         if (!in_array($data['status'], $validStatuses)) {
-            throw new UnprocessableEntityHttpException("Statut non autorisé. Les statuts autorisés sont: " . implode(', ', $validStatuses));
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
         }
 
         $user->setLogin($data['login']);
         $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
         
-        if ($this->isGranted('ROLE_ADMIN')) {
-            $user->setRoles([$data['roles']]);
-        }
+        if (!$this->isGranted('ROLE_ADMIN') && $data['roles'] === ["ROLE_ADMIN"]) {
+            throw new AccessDeniedHttpException("Il est nécessaire de disposer d'un compte admin pour créer un compte");
+        }   
 
+        $user->setRoles($data['roles']);
         $user->setStatus($data['status']);
         $user->setUpdatedAt(new \DateTimeImmutable());
 
