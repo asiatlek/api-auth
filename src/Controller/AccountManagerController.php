@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AccountManagerController extends AbstractController
 {
-    #[Route('/api/account', name: 'app_account_create', methods: ['POST'])]
+    #[Route('/api/account', name: 'api_account_create', methods: ['POST'], schemes: "https")]
     public function createAccountRequest(
         Request $request, 
         EntityManagerInterface $em,
@@ -79,7 +79,7 @@ class AccountManagerController extends AbstractController
         ], JsonResponse::HTTP_CREATED);
     }
 
-    #[Route('/api/account/{uuid}', name: 'app_account_info', methods: ['GET'])]
+    #[Route('/api/account/{uuid}', name: 'api_account_info', methods: ['GET'], schemes: "https")]
     public function readAccountRequest(
         string $uuid,
         EntityManagerInterface $em,
@@ -112,7 +112,7 @@ class AccountManagerController extends AbstractController
         return new JsonResponse($userData);
     }
 
-    #[Route('/api/account/{uuid}', name: 'app_account_update', methods: ['PUT'])]
+    #[Route('/api/account/{uuid}', name: 'api_account_update', methods: ['PUT'], schemes: "https")]
     public function EditAccountRequest(
         string $uuid,
         Request $request,
@@ -136,6 +136,91 @@ class AccountManagerController extends AbstractController
         if ($currentUser->getUserIdentifier() !== $user->getLogin() && !$this->isGranted('ROLE_ADMIN')) {
             throw new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le propriétaire du compte"], JsonResponse::HTTP_FORBIDDEN);
         }
+
+        $data = json_decode($request->getContent(), true);
+
+        $requiredParams = ['login', 'password', 'roles', 'status'];
+        foreach ($requiredParams as $param) {
+            if (!isset($data[$param])) {
+                throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
+            }
+        }
+    
+        $allowedParams = $requiredParams;
+        $unexpectedParams = array_diff(array_keys($data), $allowedParams);
+    
+        if (!empty($unexpectedParams)) {
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
+        }
+
+        $validRoles = [['ROLE_ADMIN'], ['ROLE_USER']];
+        if (!in_array($data['roles'], $validRoles)) {
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
+        }
+    
+        $validStatuses = ['open', 'closed'];
+        if (!in_array($data['status'], $validStatuses)) {
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
+        }
+
+        $user->setLogin($data['login']);
+        $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+        
+        if (!$this->isGranted('ROLE_ADMIN') && $data['roles'] === ["ROLE_ADMIN"]) {
+            throw new AccessDeniedHttpException("Il est nécessaire de disposer d'un compte admin pour créer un compte");
+        }   
+
+        $user->setRoles($data['roles']);
+        $user->setStatus($data['status']);
+        $user->setUpdatedAt(new \DateTimeImmutable());
+
+        $errors = $validator->validate($user);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorMessages], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $em->persist($user);
+        $em->flush();
+
+        $userData = [
+            'uid' => $user->getUuid(),
+            'login' => $user->getLogin(),
+            'roles' => $user->getRoles(),
+            'status' => $user->getStatus(),
+            'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $user->getUpdatedAt()->format('Y-m-d H:i:s')
+        ];
+
+        return new JsonResponse($userData);
+    }
+
+    #[Route('/api/account/me', name: 'api_account_me_get', methods: ['GET'], priority: 5, schemes: "https")]
+    public function getCurrentUser(Security $security): JsonResponse
+    {
+        /** @var User $user */
+        $user = $security->getUser();
+
+        $userData = [
+            'uid' => $user->getUuid(),
+            'login' => $user->getLogin(),
+            'roles' => $user->getRoles(),
+            'status' => $user->getStatus(),
+            'created_at' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $user->getUpdatedAt()->format('Y-m-d H:i:s')
+        ];
+
+        return $this->json($userData);
+    }
+
+    #[Route('/api/account/me', name: 'api_account_me_update', methods: ['PUT'], priority: 5, schemes: "https")]
+    public function updateCurrentUser(Request $request, Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    {
+        /** @var User $user */
+        $user = $security->getUser();
 
         $data = json_decode($request->getContent(), true);
 

@@ -2,32 +2,41 @@
 
 namespace App\Controller;
 
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class ValidateTokenController extends AbstractController
 {
-    #[Route('/api/validate/{accessToken}', name: 'app_validate_token', methods: ['GET'])]
+    #[Route('/api/validate/{token}', name: 'api_validate_token', methods: ['GET'], schemes: "https")]
     public function validateToken(
         string $token,
         JWTEncoderInterface $jwtEncoder
     ): JsonResponse {
-        try {
-            $payload = $jwtEncoder->decode($token);
-        } catch (AuthenticationException $e) {
-            return new JsonResponse(['error' => 'Token non trouvé / invalide'], JsonResponse::HTTP_NOT_FOUND);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Token non trouvé / invalide'], JsonResponse::HTTP_NOT_FOUND);
+        // Vérifier la présence du token
+        if (empty($token)) {
+            throw new NotFoundHttpException('Token non trouvé / invalide');        
         }
 
-        // Convertir l'horodatage Unix en objet DateTime
+        // Vérifier le format du token
+        $tokenParts = explode('.', $token);
+        if (count($tokenParts) !== 3) {
+            throw new NotFoundHttpException('Token non trouvé / invalide');        
+        }
+
+        try {
+            $payload = $jwtEncoder->decode($token);
+        } catch (\Exception $e) {
+            throw new NotFoundHttpException('Token non trouvé / invalide');        
+        }
+
         if (isset($payload['exp'])) {
             $expiresAt = (new \DateTime())->setTimestamp($payload['exp']);
         } else {
-            return new JsonResponse(['error' => 'Token non trouvé / invalide'], JsonResponse::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException('Token non trouvé / invalide');        
         }
 
         return new JsonResponse([

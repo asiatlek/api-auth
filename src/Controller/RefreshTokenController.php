@@ -6,9 +6,10 @@ use Gesdinet\JWTRefreshTokenBundle\Model\RefreshTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 
 class RefreshTokenController extends AbstractController
@@ -30,21 +31,19 @@ class RefreshTokenController extends AbstractController
         $this->jwtEncoder = $jwtEncoder;
     }
 
-    /**
-     * @Route("/api/token/refresh/{refreshToken}/token", name="api_token_refresh", methods={"POST"})
-     */
+    #[Route('/api/token/refresh/{refreshToken}/token', name: 'api_token_refresh', methods: ['POST'], schemes: "https")]
     public function refresh(string $refreshToken): JsonResponse
     {
         $refreshTokenEntity = $this->refreshTokenManager->get($refreshToken);
 
         if (!$refreshTokenEntity) {
-            return new JsonResponse(['error' => 'Invalid refresh token'], 401);
+            throw new NotFoundHttpException("Token invalide ou inexistant");
         }
 
         try {
             $user = $this->userProvider->loadUserByIdentifier($refreshTokenEntity->getUsername());
         } catch (UserNotFoundException $e) {
-            return new JsonResponse(['error' => 'User not found'], 404);
+            throw new NotFoundHttpException("Token invalide ou inexistant");
         }
 
         $newJwtToken = $this->jwtManager->create($user);
@@ -67,3 +66,4 @@ class RefreshTokenController extends AbstractController
         return new JsonResponse($data);
     }
 }
+
