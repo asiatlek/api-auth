@@ -20,7 +20,8 @@ security:
                 username_path: login
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                failure_handler: App\Security\JWTAuthenticationFailureHandler
+            
             jwt: ~
             refresh_jwt:
                 check_path: /api/refresh/token 

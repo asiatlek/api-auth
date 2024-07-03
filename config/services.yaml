@@ -39,3 +39,12 @@ services:
     App\EventListener\JsonExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    App\Security\LoginAttemptService:
+        arguments:
+            $loginAttemptRepository: '@App\Repository\LoginAttemptRepository'
+            $em: '@doctrine.orm.entity_manager'
+
+    App\Security\JWTAuthenticationFailureHandler:
+        arguments:
+            $loginAttemptService: '@App\Security\LoginAttemptService'
