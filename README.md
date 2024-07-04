@@ -179,4 +179,3 @@ Ce projet a été développé dans le cadre du master à l'École Ynov par :
 
 - Philippe LEK
 - Jérémy DEJOUX
-```
