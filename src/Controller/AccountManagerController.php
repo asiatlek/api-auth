@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AccountManagerController extends AbstractController
 {
@@ -33,7 +34,7 @@ class AccountManagerController extends AbstractController
         $unexpectedParams = array_diff(array_keys($data), $allowedParams);
         
         if (!empty($unexpectedParams)) {
-            throw new UnprocessableEntityHttpException("Paramètres non autorisés: " . implode(', ', $unexpectedParams));
+            throw new UnprocessableEntityHttpException("Paramètres de connection invalides: login ou password manquant(s)");
         }
         
         if (!$this->isGranted('ROLE_ADMIN')) {
@@ -51,7 +52,7 @@ class AccountManagerController extends AbstractController
             if (!in_array($data['roles'], [['ROLE_ADMIN'], ['ROLE_USER']], true)) {
                 throw new UnprocessableEntityHttpException("Paramètres de connection invalides: admin token manquant et / ou incorrect");
             }
-            $user->setStatus($data['status']);
+            $user->setRoles($data['roles']);
         }
 
         if (isset($data['status'])) {
@@ -93,12 +94,12 @@ class AccountManagerController extends AbstractController
         $user = $em->getRepository(User::class)->findOneBy(['uuid' => $uuid]);
 
         if (!$user) {
-            return new JsonResponse(['error' => "Aucun utilisateur trouvé avec l'IUID donné"], JsonResponse::HTTP_NOT_FOUND);
+            throw new NotFoundHttpException("Aucun utilisateur trouvé avec l'IUID donné");
         }
 
         $currentUser = $security->getUser();
         if ($currentUser->getUserIdentifier() !== $user->getLogin() && !$this->isGranted('ROLE_ADMIN')) {
-            return new JsonResponse(['error' => "Il est nécessaire d'être admin ou d'être le proprietaire du compte"], JsonResponse::HTTP_FORBIDDEN);
+            throw new AccessDeniedHttpException("Il est nécessaire d'être admin ou d'être le proprietaire du compte");
         }
 
         $userData = [

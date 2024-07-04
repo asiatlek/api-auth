@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "7a608a54-76f9-46ad-989f-0543dd8fa8ab",
+		"name": "Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18669217"
+	},
+	"item": [
+		{
+			"name": "authPhilippe",
+			"item": [
+				{
+					"name": "http://127.0.0.1:8000/api/token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"admin\",\r\n    \"password\": \"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/token",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8001/api/account",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MjAwNTE3NTMsImV4cCI6MTcyMDA1NTM1Mywicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJsb2dpbiI6ImFkbWluIn0.nnjpsI7pT9xvPDG0b5B8rzcUMWEnH0Zv7-xcCOOvvdCKLj406gY8gM06PtPGKfh7UU-cU1K75S89kk1_2edsteNy1JpQSnCBhg7Nz9LARGzL05g3_5n2Vwn_dQL_Vde2yAMM1ljN3Wx4X_BZdOY6j7hotZAJmq-HdukdbYLitSBOAL-sV_zjF-X60HO6oqO81kOPzOq0JY4PnCxdWpnYs-vf35A961J31YztkmHNcS4-4wyr46eAyFZiAI6-_vWxohvcCR5yi2hw3kwh3KZ635Kh6YXyPi-aqabQrV7DDrW4tjFqPqaukwN7KKp0O2ENlGGszfCh5n4NcPdFfGtPKg",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"test\",\r\n    \"password\": \"test\",\r\n    \"roles\": [\"ROLE_ADMIN\"],\r\n    \"status\": \"open\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/account",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"account"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/account/6672103dc26b5",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjU2OTEsImV4cCI6MTcxOTgyOTI5MSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.Drd_sYFFbiTkm_9SvZorSLlOldP0RbnNMK-ujldGauij9mrGGTu17CDyUfNroi5FLP0lM1xjLzssZLwd0yCnbrTh5T7uXBJRpVe14X_azfR2DVP27tzk8qnHlmEyQ_keejNBZQqbRd1TpdPfXHnCPxk8rrrRBw3wLjjluMxlu4HqKs6Y1JgCxT_wvcxpzGN2yCkPXlLTahTzKqUj169-tlz2bPMebEjk3a3_Pzygqxs3uqQxm11fMw0DhXXFRkwIc3cVAUD96SynfoQxcsWYHgwQt92zm7cejVBOmH-G8HLxSLatBplM0kmP94cwqxQ2gFKoCg-2ATyi907f60EAOQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/account/46c0e1ed-0c04-4f67-ace6-125e950bb66e",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"account",
+								"46c0e1ed-0c04-4f67-ace6-125e950bb66e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/account/6672103dc26b5",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjQyNTQsImV4cCI6MTcxOTgyNzg1NCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.eMH47GDM--dlNpsi4fiFJeMuVyG_wMFms5MCCe0hX9xTUIgtN63EFMYsPnMJjN2v4sTnDHrcYvetANWje2bhNOUfmCckXzVdPAyO6SQ-waNwjeqdxs0Y3jsavkRAMBp0C88aLoe0_X6zazed13pJnWxiCa4TuYJeu7vWAJdSK2rAfTNc1_iu3zLBQce8ir0Uw1ax3PfEa_K7Y4bhXBiFAo9r_OWwPEVfps0_wx1W11DPjQ62eE5jhnSC41de9xtbh-JAsI8WTuK086DC6aiJVsnvGI0O2K0McyFqYI9Trv0-Ms0hjHJBanxuxIPTLZ3kFoS4mlBrl1Q8qPzeLY7u7Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"test\",\r\n    \"password\": \"test\",\r\n    \"roles\": [\"ROLE_USER\"],\r\n    \"status\": \"open\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/account/46c0e1ed-0c04-4f67-ace6-125e950bb66e",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"account",
+								"46c0e1ed-0c04-4f67-ace6-125e950bb66e"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/refresh/token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"6b2c96114b446009ec03acc26c9ffc028f0a6de7126179a7c2606dee25855a7ff9760ca69809d199037a53bfe007f4d7774064c95c6e27fe31acbcf6fb801393\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/refresh/token",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"refresh",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/token/refresh/59342b30981c2a14a4e4be72cfdedfea1102d66249f4358b814c7376d6802b2e47b899f13d482cb9e3b9bcb2ae405b0c60e09cb238f25f61e055997720fdea09",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/token-refresh/5858ab1b93715a952498e72aaab7fe3bb9bbd922584486b5f2254134a182526e6e8309c3991a3d9492f8bace354e4ae5f1f0a588eff24664ebadadb49a1bf067/token",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"token-refresh",
+								"5858ab1b93715a952498e72aaab7fe3bb9bbd922584486b5f2254134a182526e6e8309c3991a3d9492f8bace354e4ae5f1f0a588eff24664ebadadb49a1bf067",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/validate/eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTg3Njk0MjEsImV4cCI6MTcxODc3MzAyMSwicm9sZXMiOlsiUk9MRV9BRE1JTiIsIlJPTEVfVVNFUiJdLCJsb2dpbiI6InRlc3QifQ.OfG5EFCEOFsrBzxxibgMU52lG8s60fEWZUa71skSrAxE2xWKVvqzGWuG06Z1QTa_KUrC",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/validate/eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjQ0NzUsImV4cCI6MTcxOTgyODA3NSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.Jq2bYWSwJBUrcOtlRo4XVPyxGF4ySIWW-6NC8nnz0rtvW6SF-j2C47s1rFranVEYoWQ1nso2sCXlEfEvmeE5pQWiZeNuV8wOsgd-8QK0W8EkEKDtELGLqNWgOHC4k70jMm34jJHlbcPCRVDBU34kDV1Xb5CI5duMVPGwPiZ_YE4IoRVhB3tigtCCL6wuDxzwLeiWcaFWcs7K2T07CWj-EiRFTFzUW6k7hK-ZgBotCE3r-C6LS4qWzDV_M1nrD7GFsBYwjAbcnghm7qGrYN-KoUo8RS4-HCP2Y24c5HBqSfw97w2wSzFp5fnShhui5yXTVeI4Y6iWV6cr9FfHJ5juyA",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"validate",
+								"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjQ0NzUsImV4cCI6MTcxOTgyODA3NSwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.Jq2bYWSwJBUrcOtlRo4XVPyxGF4ySIWW-6NC8nnz0rtvW6SF-j2C47s1rFranVEYoWQ1nso2sCXlEfEvmeE5pQWiZeNuV8wOsgd-8QK0W8EkEKDtELGLqNWgOHC4k70jMm34jJHlbcPCRVDBU34kDV1Xb5CI5duMVPGwPiZ_YE4IoRVhB3tigtCCL6wuDxzwLeiWcaFWcs7K2T07CWj-EiRFTFzUW6k7hK-ZgBotCE3r-C6LS4qWzDV_M1nrD7GFsBYwjAbcnghm7qGrYN-KoUo8RS4-HCP2Y24c5HBqSfw97w2wSzFp5fnShhui5yXTVeI4Y6iWV6cr9FfHJ5juyA"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/account/me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjQyNTQsImV4cCI6MTcxOTgyNzg1NCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.eMH47GDM--dlNpsi4fiFJeMuVyG_wMFms5MCCe0hX9xTUIgtN63EFMYsPnMJjN2v4sTnDHrcYvetANWje2bhNOUfmCckXzVdPAyO6SQ-waNwjeqdxs0Y3jsavkRAMBp0C88aLoe0_X6zazed13pJnWxiCa4TuYJeu7vWAJdSK2rAfTNc1_iu3zLBQce8ir0Uw1ax3PfEa_K7Y4bhXBiFAo9r_OWwPEVfps0_wx1W11DPjQ62eE5jhnSC41de9xtbh-JAsI8WTuK086DC6aiJVsnvGI0O2K0McyFqYI9Trv0-Ms0hjHJBanxuxIPTLZ3kFoS4mlBrl1Q8qPzeLY7u7Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/account/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"account",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "http://127.0.0.1:8000/api/account/me",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTk4MjQyNTQsImV4cCI6MTcxOTgyNzg1NCwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImxvZ2luIjoidGVzdCJ9.eMH47GDM--dlNpsi4fiFJeMuVyG_wMFms5MCCe0hX9xTUIgtN63EFMYsPnMJjN2v4sTnDHrcYvetANWje2bhNOUfmCckXzVdPAyO6SQ-waNwjeqdxs0Y3jsavkRAMBp0C88aLoe0_X6zazed13pJnWxiCa4TuYJeu7vWAJdSK2rAfTNc1_iu3zLBQce8ir0Uw1ax3PfEa_K7Y4bhXBiFAo9r_OWwPEVfps0_wx1W11DPjQ62eE5jhnSC41de9xtbh-JAsI8WTuK086DC6aiJVsnvGI0O2K0McyFqYI9Trv0-Ms0hjHJBanxuxIPTLZ3kFoS4mlBrl1Q8qPzeLY7u7Q",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"login\": \"test\",\r\n    \"password\": \"test\",\r\n    \"roles\": [\"ROLE_USER\"],\r\n    \"status\": \"open\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/account/me",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"account",
+								"me"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

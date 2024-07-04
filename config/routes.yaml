@@ -13,7 +13,7 @@ api_refresh_token:
     schemes: "https"
 
 api_token_refresh:
-    path: /api/token/refresh/{refreshToken}/token
+    path: /api/token-refresh/{refreshToken}/token
     controller: App\Controller\RefreshTokenController::refresh
     methods: [POST]
     schemes: "https"

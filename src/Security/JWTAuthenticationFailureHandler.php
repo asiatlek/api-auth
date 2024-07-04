@@ -25,9 +25,15 @@ class JWTAuthenticationFailureHandler implements AuthenticationFailureHandlerInt
         $this->loginAttemptService->logFailedAttempt($ip);
 
         if ($this->loginAttemptService->isBlocked($ip)) {
-            return new JsonResponse(['message' => 'Too many login attempts, please try again later.'], 429);
+            return new JsonResponse([
+                'code' => 429,
+                'message' => 'Too many login attempts, please try again later.'
+            ], 429);
         }
 
-        return new JsonResponse(['message' => 'Invalid credentials.'], 401);
+        return new JsonResponse([
+            'code' => 401,
+            'message' => 'Invalid credentials.'
+        ], 401);
     }
 }

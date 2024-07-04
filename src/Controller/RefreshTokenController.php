@@ -31,7 +31,7 @@ class RefreshTokenController extends AbstractController
         $this->jwtEncoder = $jwtEncoder;
     }
 
-    #[Route('/api/token/refresh/{refreshToken}/token', name: 'api_token_refresh', methods: ['POST'], schemes: "https")]
+    #[Route('/api/token-refresh/{refreshToken}/token', name: 'api_token_refresh', methods: ['POST'], schemes: "https")]
     public function refresh(string $refreshToken): JsonResponse
     {
         $refreshTokenEntity = $this->refreshTokenManager->get($refreshToken);
