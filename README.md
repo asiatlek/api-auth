@@ -180,5 +180,3 @@ Ce projet a été développé dans le cadre du master à l'École Ynov par :
 - Philippe LEK
 - Jérémy DEJOUX
 ```
-
-Dans ce modèle, chaque section est correctement indentée et formatée, avec des blocs de code appropriés pour les commandes shell et les requêtes HTTP. Assurez-vous de copier et de coller ce texte dans votre fichier `README.md` en respectant la structure Markdown pour obtenir une mise en page correcte.
