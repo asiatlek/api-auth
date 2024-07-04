@@ -12,8 +12,7 @@ Une API d'authentification sécurisée construite avec Symfony 6.4 et PHP 8.2, u
 6. [Exemples Postman](#exemples-postman)
 7. [Contribuer](#contribuer)
 8. [Licence](#licence)
-9. [Contact](#contact)
-10. [À propos de nous](#à-propos-de-nous)
+9. [À propos de nous](#à-propos-de-nous)
 
 ## Aperçu
 
@@ -168,10 +167,6 @@ Les contributions sont les bienvenues ! Pour contribuer :
 ## Licence
 
 Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
-
-## Contact
-
-Pour toute question ou suggestion, vous pouvez me contacter à votre-email@example.com.
 
 ## À propos de nous
 
